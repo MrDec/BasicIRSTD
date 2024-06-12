@@ -48,11 +48,47 @@ def test():
         net.load_state_dict(torch.load(opt.pth_dir, map_location=device)['state_dict'])
     net.eval()
 
+    # with torch.no_grad():
+    #     for idx_iter, (img, size, img_dir) in tqdm(enumerate(test_loader)):
+    #         img = Variable(img).cuda()
+    #         pred = net.forward(img)
+    #         pred = pred[:,:,:size[0],:size[1]]
+
     with torch.no_grad():
+        max_block_size = (512, 512)
         for idx_iter, (img, size, img_dir) in tqdm(enumerate(test_loader)):
             img = Variable(img).cuda()
-            pred = net.forward(img)
-            pred = pred[:,:,:size[0],:size[1]]        
+            _, _, height, width = img.size()
+
+            if height < max_block_size[0] or width < max_block_size[1]:
+                # 如果图像大小小于块的大小，不够形成完整的一块
+                pred = net.forward(img)
+            else:
+                # 计算块的数量
+                num_blocks_height = (height + max_block_size[0] - 1) // max_block_size[0]
+                num_blocks_width = (width + max_block_size[1] - 1) // max_block_size[1]
+
+                # 动态分块推理
+                output = torch.zeros_like(img)
+                for i in range(num_blocks_height):
+                    for j in range(num_blocks_width):
+                        # 计算当前块的位置和尺寸
+                        block_y = i * max_block_size[0]
+                        block_x = j * max_block_size[1]
+                        block_height = min(max_block_size[0], height - block_y)
+                        block_width = min(max_block_size[1], width - block_x)
+
+                        # 提取当前块
+                        block = img[:, :, block_y:block_y+block_height, block_x:block_x+block_width]
+
+                        # 对当前块进行推理
+                        pred_block = net.forward(block)
+
+                        # 将结果放回输出的相应位置
+                        output[:, :, block_y:block_y+block_height, block_x:block_x+block_width] = pred_block
+
+                output = output[:, :, :size[0], :size[1]]
+                pred = output        
             ### save img
             if opt.save_img == True:
                 img_save = transforms.ToPILImage()(((pred[0,0,:,:]>opt.threshold).float()).cpu())
