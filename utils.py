@@ -103,10 +103,13 @@ def get_img_norm_cfg(dataset_name, dataset_dir):
     elif dataset_name == 'IRDST-real':   
         img_norm_cfg = {'mean': 101.54053497314453, 'std': 56.49856185913086}
     else:
-        with open(dataset_dir + '/' + dataset_name +'/img_idx/train.txt', 'r') as f:
+        with open(dataset_dir + '/' + dataset_name +'/img_idx/train_' + dataset_name + '.txt', 'r') as f:
             train_list = f.read().splitlines()
-        with open(dataset_dir + '/' + dataset_name +'/img_idx/test.txt', 'r') as f:
-            test_list = f.read().splitlines()
+        if os.path.exists(dataset_dir + '/' + dataset_name +'/img_idx/test_' + dataset_name + '.txt'):
+            with open(dataset_dir + '/' + dataset_name +'/img_idx/test_' + dataset_name + '.txt', 'r') as f:
+                test_list = f.read().splitlines()
+        else:
+            test_list = []
         img_list = train_list + test_list
         img_dir = dataset_dir + '/' + dataset_name + '/images/'
         mean_list = []
