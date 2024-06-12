@@ -88,9 +88,9 @@ class AGPCNet_Pro(nn.Module):
         assert gca_att in ['origin', 'post']
 
         if backbone == 'resnet18':
-            self.backbone = resnet18(pretrained=True)
+            self.backbone = resnet18(pretrained=False)
         elif backbone == 'resnet34':
-            self.backbone = resnet34(pretrained=True)
+            self.backbone = resnet34(pretrained=False)
         else:
             raise NotImplementedError
 
