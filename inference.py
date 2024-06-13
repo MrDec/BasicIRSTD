@@ -97,7 +97,7 @@ def test():
                     output[:, :, block_y:block_y + block_height, block_x:block_x + block_width] = pred_block
 
             # 去除填充部分
-            output = output[:, :, :height, :width]
+            output = output[:,:,:size[0],:size[1]]
             pred = output     
             ### save img
             if opt.save_img == True:
