@@ -54,41 +54,51 @@ def test():
     #         pred = net.forward(img)
     #         pred = pred[:,:,:size[0],:size[1]]
 
-    with torch.no_grad():
         max_block_size = (512, 512)
+    with torch.no_grad():
         for idx_iter, (img, size, img_dir) in tqdm(enumerate(test_loader)):
             img = Variable(img).cuda()
             _, _, height, width = img.size()
 
-            if height < max_block_size[0] or width < max_block_size[1]:
-                # 如果图像大小小于块的大小，不够形成完整的一块
-                pred = net.forward(img)
-            else:
-                # 计算块的数量
-                num_blocks_height = (height + max_block_size[0] - 1) // max_block_size[0]
-                num_blocks_width = (width + max_block_size[1] - 1) // max_block_size[1]
+            # 计算需要填充的尺寸
+            pad_height = (max_block_size[0] - height % max_block_size[0]) % max_block_size[0] # 512 - 832 % 512 = 192
+            pad_width = (max_block_size[1] - width % max_block_size[1]) % max_block_size[1] # 512 - 1088 % 512 = 448
+          
+            # 对图像进行填充
+            img = F.pad(img, (0, 0, pad_width, pad_height), padding_mode='constant', fill=0)
+            _, _, padded_height, padded_width = img.size()
 
-                # 动态分块推理
-                output = torch.zeros_like(img)
-                for i in range(num_blocks_height):
-                    for j in range(num_blocks_width):
-                        # 计算当前块的位置和尺寸
-                        block_y = i * max_block_size[0]
-                        block_x = j * max_block_size[1]
-                        block_height = min(max_block_size[0], height - block_y)
-                        block_width = min(max_block_size[1], width - block_x)
+            num_blocks_height = (padded_height + max_block_size[0] - 1) // max_block_size[0]
+            num_blocks_width = (padded_width + max_block_size[1] - 1) // max_block_size[1]
 
-                        # 提取当前块
-                        block = img[:, :, block_y:block_y+block_height, block_x:block_x+block_width]
+            # 动态分块推理
+            output = torch.zeros_like(img)
+            for i in range(num_blocks_height):
+                for j in range(num_blocks_width):
+                    block_y = i * max_block_size[0]
+                    block_x = j * max_block_size[1]
+                    block_height = min(max_block_size[0], padded_height - block_y)
+                    block_width = min(max_block_size[1], padded_width - block_x)
 
-                        # 对当前块进行推理
+                    # 确保块的尺寸大于0
+                    if block_height <= 0 or block_width <= 0:
+                        print(f'Skipping block at (i={i}, j={j}) due to zero or negative size: height={block_height}, width={block_width}')
+                        continue
+
+                    block = img[:, :, block_y:block_y + block_height, block_x:block_x + block_width]
+                    
+
+                    try:
                         pred_block = net.forward(block)
+                    except RuntimeError as e:
+                        print(f'Error processing block at (i={i}, j={j}): {str(e)}')
+                        continue
 
-                        # 将结果放回输出的相应位置
-                        output[:, :, block_y:block_y+block_height, block_x:block_x+block_width] = pred_block
+                    output[:, :, block_y:block_y + block_height, block_x:block_x + block_width] = pred_block
 
-                output = output[:, :, :size[0], :size[1]]
-                pred = output        
+            # 去除填充部分
+            output = output[:, :, :height, :width]
+            pred = output     
             ### save img
             if opt.save_img == True:
                 img_save = transforms.ToPILImage()(((pred[0,0,:,:]>opt.threshold).float()).cpu())
