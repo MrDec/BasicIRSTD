@@ -54,7 +54,7 @@ def test():
     #         pred = net.forward(img)
     #         pred = pred[:,:,:size[0],:size[1]]
 
-        max_block_size = (512, 512)
+    max_block_size = (512, 512)
     with torch.no_grad():
         for idx_iter, (img, size, img_dir) in tqdm(enumerate(test_loader)):
             img = Variable(img).cuda()
