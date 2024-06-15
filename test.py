@@ -49,10 +49,10 @@ def test():
         pred = net.forward(img)
         pred = pred[:,:,:size[0],:size[1]]
         gt_mask = gt_mask[:,:,:size[0],:size[1]]
-        # eval_mIoU.update((pred>opt.threshold).cpu(), gt_mask)
-        # eval_PD_FA.update((pred[0,0,:,:]>opt.threshold).cpu(), gt_mask[0,0,:,:], size)     
-        # eval_roc.update(pred[0,0,:,:],gt_mask[0,0,:,:])
-        # metric.update(labels=gt_mask, preds=(pred>opt.threshold).cpu())
+        eval_mIoU.update((pred>opt.threshold).cpu(), gt_mask)
+        eval_PD_FA.update((pred[0,0,:,:]>opt.threshold).cpu(), gt_mask[0,0,:,:], size)     
+        eval_roc.update(pred[0,0,:,:],gt_mask[0,0,:,:])
+        metric.update(labels=gt_mask, preds=(pred>opt.threshold).cpu())
 
 
         ### save img
@@ -67,11 +67,11 @@ def test():
     # # iou,F1,recall,precision = metric.get() 12月3号计算的NUAA数据集准确率和F1反了
     # iou,precision,recall,F1 = metric.get()
     # AUC = auc(fp_rates,tp_rates)    
-    # results1 = eval_mIoU.get()
-    # results2 = eval_PD_FA.get()
+    results1 = eval_mIoU.get()
+    results2 = eval_PD_FA.get()
     # print("iou:\t" + str(iou))
-    # print("pixAcc, mIoU:\t" + str(results1))
-    # print("PD, FA, nIoU:\t" + str(results2))
+    print("pixAcc, mIoU:\t" + str(results1))
+    print("PD, FA, nIoU:\t" + str(results2))
     # print("AUC:\t"+str(AUC))
     # print("F1:\t"+str(F1))
     # print("precision:\t"+str(precision))
