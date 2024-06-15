@@ -278,8 +278,9 @@ class TestSetLoader(Dataset):
         super(TestSetLoader).__init__()
         self.dataset_dir = dataset_dir + '/' + test_dataset_name
         self.fold = fold
-        with open(self.dataset_dir + '/img_idx/test.txt', 'r') as f:
+        # with open(self.dataset_dir + '/img_idx/test.txt', 'r') as f:
         # with open(f'/home/dww/OD/BasicIRSTD/val_fold{fold}.txt', 'w') as f:
+        with open(self.dataset_dir + '/img_idx/test_' + test_dataset_name + '.txt', 'r') as f:
             self.test_list = f.read().splitlines()
         if img_norm_cfg == None:
             self.img_norm_cfg = get_img_norm_cfg(train_dataset_name, dataset_dir)
