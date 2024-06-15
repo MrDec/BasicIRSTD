@@ -8,21 +8,24 @@ from metric import *
 import os
 import time
 from sklearn.metrics import  auc
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
-parser = argparse.ArgumentParser(description="PyTorch BasicIRSTD test")
-parser.add_argument("--model_names", default=['ACM'], type=list, 
+parser = argparse.ArgumentParser(description="PyTorch BasicIRSTD Inference without mask")
+parser.add_argument("--model_names", default=['ACM', 'ALCNet','DNANet', 'ISNet', 'RDIAN', 'ISTDU-Net'], nargs='+',  
                     help="model_name: 'ACM', 'ALCNet', 'DNANet', 'ISNet', 'UIUNet', 'RDIAN', 'ISTDU-Net', 'U-Net', 'RISTDnet'")
-parser.add_argument("--pth_dirs", default=['NUAA-SIRST/ACM_400.pth.tar'], type=list, help="checkpoint dir, default=None or ['NUDT-SIRST/ACM_400.pth.tar','NUAA-SIRST/ACM_400.pth.tar']")
-parser.add_argument("--dataset_dir", default='/home/dww/OD/dataset', type=str, help="train_dataset_dir")
-parser.add_argument("--dataset_names", default=['NUAA-SIRST'], type=list,
+parser.add_argument("--pth_dirs", default=None, nargs='+',  help="checkpoint dir, default=None or ['NUDT-SIRST/ACM_400.pth.tar','NUAA-SIRST/ACM_400.pth.tar']")
+parser.add_argument("--dataset_dir", default='./datasets', type=str, help="train_dataset_dir")
+parser.add_argument("--dataset_names", default=['NUAA-SIRST', 'NUDT-SIRST', 'IRSTD-1K'], nargs='+', 
                     help="dataset_name: 'NUAA-SIRST', 'NUDT-SIRST', 'IRSTD-1K', 'SIRST3', 'NUDT-SIRST-Sea'")
 parser.add_argument("--img_norm_cfg", default=None, type=dict,
                     help="specific a img_norm_cfg, default=None (using img_norm_cfg values of each dataset)")
+parser.add_argument("--img_norm_cfg_mean", default=None, type=float,
+                    help="specific a mean value img_norm_cfg, default=None (using img_norm_cfg values of each dataset)")
+parser.add_argument("--img_norm_cfg_std", default=None, type=float,
+                    help="specific a std value img_norm_cfg, default=None (using img_norm_cfg values of each dataset)")
 
-parser.add_argument("--save_img", default=True, type=bool, help="save image of or not")
-parser.add_argument("--save_img_dir", type=str, default='/home/dww/OD/BasicIRSTD/results/', help="path of saved image")
-parser.add_argument("--save_log", type=str, default='/home/dww/OD/BasicIRSTD/log_seed_posSample/', help="path of saved .pth")
+parser.add_argument("--save_img", default=False, type=bool, help="save image of or not")
+parser.add_argument("--save_img_dir", type=str, default='./results/', help="path of saved image")
+parser.add_argument("--save_log", type=str, default='./log/', help="path of saved .pth")
 parser.add_argument("--threshold", type=float, default=0.5)
 
 global opt
