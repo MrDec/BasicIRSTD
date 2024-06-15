@@ -273,46 +273,46 @@ import numpy as np
 #     def __len__(self):
 #         return len(self.train_list)
 
-# class TestSetLoader(Dataset):
-#     def __init__(self, dataset_dir, train_dataset_name, test_dataset_name, img_norm_cfg=None,fold=0):
-#         super(TestSetLoader).__init__()
-#         self.dataset_dir = dataset_dir + '/' + test_dataset_name
-#         self.fold = fold
-#         with open(self.dataset_dir + '/img_idx/test.txt', 'r') as f:
-#         # with open(f'/home/dww/OD/BasicIRSTD/val_fold{fold}.txt', 'w') as f:
-#             self.test_list = f.read().splitlines()
-#         if img_norm_cfg == None:
-#             self.img_norm_cfg = get_img_norm_cfg(train_dataset_name, dataset_dir)
-#         else:
-#             self.img_norm_cfg = img_norm_cfg
+class TestSetLoader(Dataset):
+    def __init__(self, dataset_dir, train_dataset_name, test_dataset_name, img_norm_cfg=None,fold=0):
+        super(TestSetLoader).__init__()
+        self.dataset_dir = dataset_dir + '/' + test_dataset_name
+        self.fold = fold
+        with open(self.dataset_dir + '/img_idx/test.txt', 'r') as f:
+        # with open(f'/home/dww/OD/BasicIRSTD/val_fold{fold}.txt', 'w') as f:
+            self.test_list = f.read().splitlines()
+        if img_norm_cfg == None:
+            self.img_norm_cfg = get_img_norm_cfg(train_dataset_name, dataset_dir)
+        else:
+            self.img_norm_cfg = img_norm_cfg
         
-#     def __getitem__(self, idx):
-#         try:
-#             img = Image.open((self.dataset_dir + '/images/' + self.test_list[idx] + '.png').replace('//','/')).convert('I')
-#             mask = Image.open((self.dataset_dir + '/masks/' + self.test_list[idx] + '.png').replace('//','/')).convert('L')
-#             ###resize下
-#             # img = img.resize((512, 512))
-#             # mask = mask.resize((512, 512))
-#         except:
-#             img = Image.open((self.dataset_dir + '/images/' + self.test_list[idx] + '.bmp').replace('//','/')).convert('I')
-#             mask = Image.open((self.dataset_dir + '/masks/' + self.test_list[idx] + '.bmp').replace('//','/'))
+    def __getitem__(self, idx):
+        try:
+            img = Image.open((self.dataset_dir + '/images/' + self.test_list[idx] + '.png').replace('//','/')).convert('I')
+            mask = Image.open((self.dataset_dir + '/masks/' + self.test_list[idx] + '.png').replace('//','/')).convert('L')
+            ###resize下
+            # img = img.resize((512, 512))
+            # mask = mask.resize((512, 512))
+        except:
+            img = Image.open((self.dataset_dir + '/images/' + self.test_list[idx] + '.bmp').replace('//','/')).convert('I')
+            mask = Image.open((self.dataset_dir + '/masks/' + self.test_list[idx] + '.bmp').replace('//','/'))
 
-#         img = Normalized(np.array(img, dtype=np.float32), self.img_norm_cfg)
-#         mask = np.array(mask, dtype=np.float32)  / 255.0
-#         if len(mask.shape) > 2:
-#             mask = mask[:,:,0]
+        img = Normalized(np.array(img, dtype=np.float32), self.img_norm_cfg)
+        mask = np.array(mask, dtype=np.float32)  / 255.0
+        if len(mask.shape) > 2:
+            mask = mask[:,:,0]
         
-#         h, w = img.shape
-#         img = PadImg(img)
-#         mask = PadImg(mask)
+        h, w = img.shape
+        img = PadImg(img)
+        mask = PadImg(mask)
         
-#         img, mask = img[np.newaxis,:], mask[np.newaxis,:]
+        img, mask = img[np.newaxis,:], mask[np.newaxis,:]
         
-#         img = torch.from_numpy(np.ascontiguousarray(img))
-#         mask = torch.from_numpy(np.ascontiguousarray(mask))
-#         return img, mask, [h,w], self.test_list[idx]
-#     def __len__(self):
-#         return len(self.test_list) 
+        img = torch.from_numpy(np.ascontiguousarray(img))
+        mask = torch.from_numpy(np.ascontiguousarray(mask))
+        return img, mask, [h,w], self.test_list[idx]
+    def __len__(self):
+        return len(self.test_list) 
 
 # class EvalSetLoader(Dataset):
 #     def __init__(self, dataset_dir, mask_pred_dir, test_dataset_name, model_name):
