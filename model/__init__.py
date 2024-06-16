@@ -7,6 +7,6 @@
 # from model.UIUNet.model_UIUNet import UIUNET as UIUNet
 # from BasicIRSTD.model.ISTDUNet.model_ISTDUNet_1 import ISTDU_Net as ISTDU_Net
 # from model.RDIAN.model_RDIAN import RDIAN as RDIAN
-from model.AGPCNet.network import AGPCNet as AGPCNet
+from model.AGPCNet import get_segmentation_model
 # from model.RPCANet.net import RPCANet as RPCANet
 # from model.MTUNet.MTUNet import res_UNet as MTUNet
