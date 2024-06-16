@@ -53,7 +53,7 @@ class Net(nn.Module):
         elif model_name == 'RDIAN':
             self.model = RDIAN()
         elif model_name == 'AGPCNet':
-            self.model = AGPCNet()
+            self.model = get_segmentation_model('agpcnet_1')
             self.cal_loss = FocalIoULoss()
         elif model_name == 'RPCANet':
             # self.model = RPCANet()
